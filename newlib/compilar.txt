@@ -1,0 +1,44 @@
+cd newlib-X.Y.Z
+dentro do dir da newlib use uma das opções abaixo
+
+mkdir build; cd build
+../configure \
+    --target=m68k-elf \
+    --prefix=$HOME/rigel-sysroot \
+    --disable-newlib-supplied-syscalls \
+    --enable-newlib-reent-small \
+    --enable-newlib-nano-malloc \
+    --disable-newlib-multithread \
+    --disable-nls
+
+make -j4
+make install DESTDIR=<projeto rigel>
+
+# Estática (orioncore e kernel): endereço fixo, sem PIC
+mkdir build-static && cd build-static
+
+../configure --target=m68k-elf \
+--prefix=$HOME/rigel-sysroot/static \
+--disable-newlib-supplied-syscalls
+--enable-newlib-nano-malloc \
+--enable-newlib-reent-small
+--disable-newlib-multithread
+--disable-nls \
+CFLAGS_FOR_TARGET="-Os -m68000 -ffunction-sections -fdata-sections"
+make -j4
+make install DESTDIR=/home/pdsilva/Projects/rigel/rigel/lib
+
+
+# PIC (programas de usuário): mesmas opções, outro CFLAGS e outro prefixo
+mkdir ../build-pic && cd ../build-pic
+
+../configure --target=m68k-elf \
+--prefix=$HOME/rigel-sysroot/pic \
+--disable-newlib-supplied-syscalls
+--enable-newlib-nano-malloc \
+--enable-newlib-reent-small
+--disable-newlib-multithread
+--disable-nls \
+CFLAGS_FOR_TARGET="-Os -m68000 -msep-data -ffunction-sections -fdata-sections"
+make -j4
+make install DESTDIR=<projeto rigel>
