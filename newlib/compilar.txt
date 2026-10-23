@@ -16,20 +16,34 @@ make install DESTDIR=<projeto rigel>
 
 # Estática (orioncore e kernel): endereço fixo, sem PIC
 mkdir build-static && cd build-static
+N   N   OOO      PPPP   III  CCCC
+NN  N  O   O      P   P   I  C
+N N N  O   O      PPPP    I  C
+N N N  O   O      P       I  C
+N  NN  O   O      P       I  C
+N   N   OOO      P      III  CCCC
 
-../configure --target=m68k-elf \
---prefix=$HOME/rigel-sysroot/static \
---disable-newlib-supplied-syscalls
---enable-newlib-nano-malloc \
---enable-newlib-reent-small
---disable-newlib-multithread
---disable-nls \
-CFLAGS_FOR_TARGET="-Os -m68000 -ffunction-sections -fdata-sections"
+   ../newlib-4.6.0.20260123/configure --target=m68k-elf \
+   --prefix=$HOME/rigel-sysroot/static \
+   --disable-newlib-supplied-syscalls \
+   --enable-newlib-nano-malloc \
+   --enable-newlib-reent-small \
+   --disable-newlib-multithread \
+   --disable-nls \
+   CFLAGS_FOR_TARGET="-Os -m68000 -fno-pic -fno-pie -ffunction-sections -fdata-sections"
+
 make -j4
 make install DESTDIR=/home/pdsilva/Projects/rigel/rigel/lib
-
+cp $RIGELDIR/lib/home/pdsilva/rigel-sysroot/pic/m68k-elf/lib/*.* $RIGELDIR/lib/.
 
 # PIC (programas de usuário): mesmas opções, outro CFLAGS e outro prefixo
+PPPP   III  CCCC
+P   P   I  C
+PPPP    I  C
+P       I  C
+P       I  C
+P      III  CCCC
+
 mkdir ../build-pic && cd ../build-pic
 
 ../configure --target=m68k-elf \
@@ -39,6 +53,10 @@ mkdir ../build-pic && cd ../build-pic
 --enable-newlib-reent-small
 --disable-newlib-multithread
 --disable-nls \
-CFLAGS_FOR_TARGET="-Os -m68000 -msep-data -ffunction-sections -fdata-sections"
+CFLAGS_FOR_TARGET="-Os -m68000 -lto -msep-data -ffunction-sections -fdata-sections"
 make -j4
-make install DESTDIR=<projeto rigel>
+make install DESTDIR=/home/pdsilva/Projects/rigel/rigel/lib
+cp $RIGELDIR/lib/home/pdsilva/rigel-sysroot/pic/m68k-elf/lib/*.* $RIGELDIR/lib/.
+
+Verificar se o app tem got
+m68k-elf-readelf -r ./lib/libc.a | grep -c GOT16O
